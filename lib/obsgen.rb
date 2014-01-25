@@ -27,9 +27,10 @@ module Obsgen
     def publish(exchange)
       payload = "data: #{Obsgen::random_observation.to_json}"
       cmd = "rabbitmqadmin publish exchange=#{exchange} routing_key='' payload=\"#{payload}\""
-      pid, stdin, stdout, stderr = Open4::popen4(cmd)
 
+      pid, stdin, stdout, stderr = Open4::popen4(cmd)
       stderr = stderr.read
+
       unless stderr == '\n' || stderr == '' || stderr.nil?
         $stderr.puts stderr
         $stdout.puts payload if options[:verbose]
