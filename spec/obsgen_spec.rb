@@ -10,8 +10,8 @@ describe Obsgen do
     it { should be_a Hash}
     it { should include "action" }
     it { should include "coord" }
+    it { should include "value" }
     its(["action"]) { should match /^(add|delete)$/ }
-    its(["coord"]) { should be_an Array }
 
     it 'generates valid coordinates' do
       expect(subject["coord"][0].to_s).to match /^#{float_regex}$/
