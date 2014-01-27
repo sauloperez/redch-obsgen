@@ -18,7 +18,13 @@ module Obsgen
   end
 
   def self.random_observation
-    { 'action' => ['add', 'delete'].sample, 'coord' => RandomLocation.near_by(lat, lng, radius), 'value' => Random.new.rand(2) }
+    { 'action' => ['add', 'delete'].sample, 'coord' => RandomLocation.near_by(lat, lng, radius), 'value' => rand }
+  end
+
+  def self.publish_to_exchange(payload, exchange)
+    cmd = "rabbitmqadmin publish exchange=#{exchange} routing_key='' payload='#{payload}'"
+    pid, stdin, stdout, stderr = Open4::popen4(cmd)
+    [stdout.read, stderr.read]
   end
 
   class CLI < Thor
@@ -26,15 +32,7 @@ module Obsgen
     option :verbose
     def publish(exchange)
       payload = "#{Obsgen::random_observation.to_json}"
-      cmd = "rabbitmqadmin publish exchange=#{exchange} routing_key='' payload='#{payload}'"
-
-      pid, stdin, stdout, stderr = Open4::popen4(cmd)
-      stderr = stderr.read
-
-      unless stderr == '\n' || stderr == '' || stderr.nil?
-        $stderr.puts stderr
-      end
-      $stdout.puts payload if options[:verbose]
+      # if options[:verbose]
     end
   end
 
