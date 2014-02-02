@@ -8,6 +8,7 @@ cmd_regex = /rabbitmqadmin publish exchange=([\w]+) routing_key='' payload='(.*)
 describe Obsgen do
   let(:exchange) { 'samples' }
   let(:payload) { { 'a' => 'b' } }
+  let(:coord) { [1.2, 2.3] }
 
   describe '#random_observation' do
     subject { Obsgen::CLI.random_observation }
@@ -21,6 +22,23 @@ describe Obsgen do
     it 'generates valid coordinates' do
       expect(subject["coord"][0].to_s).to match /^#{float_regex}$/
       expect(subject["coord"][1].to_s).to match /^#{float_regex}$/
+    end
+
+    it 'specifies an already sent coordinates if action is delete' do
+      Obsgen::CLI.coordinates= [coord]
+
+      expect {
+        obs = Obsgen::CLI.random_observation 'delete'
+        expect(obs['coord']).to eq coord
+      }.to change { Obsgen::CLI.coordinates.length }.by(-1)
+    end
+
+    it 'specifies new coordinates if action is add' do
+      Obsgen::CLI.coordinates= nil
+
+      expect{
+        Obsgen::CLI.random_observation 'add'
+      }.to change { Obsgen::CLI.coordinates.length }.by(1)
     end
   end
 
